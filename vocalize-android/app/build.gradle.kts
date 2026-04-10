@@ -92,6 +92,7 @@ dependencies {
 
     // DataStore Preferences
     implementation(libs.datastore.preferences)
+    implementation(libs.androidx.documentfile)
 
     // Accompanist
     implementation(libs.accompanist.permissions)

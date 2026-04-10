@@ -23,6 +23,7 @@ material3 = "1.2.1"
 coil = "2.6.0"
 gson = "2.11.0"
 coroutines = "1.8.1"
+documentfile = "1.0.1"
 media = "1.6.0"
 
 [libraries]
@@ -62,6 +63,7 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 androidx-media = { group = "androidx.media", name = "media", version.ref = "media" }
 androidx-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycleRuntimeKtx" }
+androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
