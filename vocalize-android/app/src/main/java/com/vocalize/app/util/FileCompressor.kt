@@ -1,6 +1,7 @@
 package com.vocalize.app.util
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream
@@ -16,7 +17,7 @@ import javax.inject.Singleton
 
 @Singleton
 class FileCompressor @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) {
 
     suspend fun zipDirectory(sourceDir: File, outputZip: File): Boolean = withContext(Dispatchers.IO) {
