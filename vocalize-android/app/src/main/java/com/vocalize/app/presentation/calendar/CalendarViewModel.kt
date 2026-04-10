@@ -39,27 +39,30 @@ class CalendarViewModel @Inject constructor(
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     init {
-        // Observe month changes and load memos for the month
+        // Observe month changes and load memos and reminders for the month
         viewModelScope.launch {
             combine(_selectedYear, _selectedMonth) { y, m -> Pair(y, m) }
                 .flatMapLatest { (year, month) ->
                     val (start, end) = getMonthBounds(year, month)
-                    memoRepository.getMemosByDate(start, end)
+                    combine(
+                        memoRepository.getMemosByDate(start, end),
+                        memoRepository.getRemindersByDate(start, end)
+                    ) { memos, reminders -> Pair(memos, reminders) }
                 }
-                .collect { memos ->
+                .collect { (memos, reminders) ->
                     val year = _selectedYear.value
                     val month = _selectedMonth.value
                     val daysWithMemos = mutableSetOf<Int>()
                     val daysWithReminders = mutableSetOf<Int>()
                     memos.forEach { memo ->
                         val cal = Calendar.getInstance().apply { timeInMillis = memo.dateCreated }
-                        daysWithMemos.add(cal.get(Calendar.DAY_OF_MONTH))
-                        if (memo.hasReminder && memo.reminderTime != null) {
-                            val rc = Calendar.getInstance().apply { timeInMillis = memo.reminderTime }
-                            if (rc.get(Calendar.YEAR) == year && rc.get(Calendar.MONTH) == month) {
-                                daysWithReminders.add(rc.get(Calendar.DAY_OF_MONTH))
-                            }
+                        if (cal.get(Calendar.YEAR) == year && cal.get(Calendar.MONTH) == month) {
+                            daysWithMemos.add(cal.get(Calendar.DAY_OF_MONTH))
                         }
+                    }
+                    reminders.forEach { reminder ->
+                        val rc = Calendar.getInstance().apply { timeInMillis = reminder.reminderTime }
+                        daysWithReminders.add(rc.get(Calendar.DAY_OF_MONTH))
                     }
                     _uiState.update { it.copy(daysWithMemos = daysWithMemos, daysWithReminders = daysWithReminders, isLoading = false) }
                 }

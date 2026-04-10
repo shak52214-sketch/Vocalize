@@ -36,6 +36,7 @@ class MemoRepository @Inject constructor(
     fun getUpcomingReminders(now: Long): Flow<List<MemoEntity>> = memoDao.getUpcomingReminders(now)
     fun getMemosByDate(dayStart: Long, dayEnd: Long): Flow<List<MemoEntity>> = memoDao.getMemosByDate(dayStart, dayEnd)
     fun getMemosByReminderDate(start: Long, end: Long): Flow<List<MemoEntity>> = memoDao.getMemosByReminderDate(start, end)
+    fun getRemindersByDate(start: Long, end: Long): Flow<List<ReminderEntity>> = reminderDao.getRemindersByDate(start, end)
     fun searchMemos(query: String): Flow<List<MemoEntity>> = memoDao.searchMemos(query)
     fun getFilteredMemos(
         categoryId: String?,
@@ -77,7 +78,6 @@ class MemoRepository @Inject constructor(
     suspend fun deleteReminderById(id: String) = reminderDao.deleteReminderById(id)
     suspend fun deleteRemindersByMemo(memoId: String) = reminderDao.deleteRemindersByMemo(memoId)
     suspend fun deleteReminder(reminder: ReminderEntity) = reminderDao.deleteReminderById(reminder.id)
-    suspend fun getRemindersByDate(start: Long, end: Long): Flow<List<ReminderEntity>> = reminderDao.getRemindersByDate(start, end)
     suspend fun updateReminderTime(id: String, reminderTime: Long) = reminderDao.updateReminder(id, reminderTime, RepeatType.NONE.name, "")
     suspend fun updateReminderFields(id: String, reminderTime: Long, repeatType: RepeatType, customDays: String) = reminderDao.updateReminder(id, reminderTime, repeatType.name, customDays)
     suspend fun getMemoTags(memoId: String): List<TagEntity> = getTagsForMemo(memoId).first()

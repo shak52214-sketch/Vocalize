@@ -48,8 +48,11 @@ interface MemoDao {
     @Query("SELECT * FROM memos WHERE hasReminder = 1 AND reminderTime >= :now ORDER BY reminderTime ASC")
     fun getUpcomingReminders(now: Long): Flow<List<MemoEntity>>
 
-    @Query("SELECT * FROM memos WHERE reminderTime BETWEEN :dayStart AND :dayEnd")
+    @Query("SELECT * FROM memos WHERE dateCreated BETWEEN :dayStart AND :dayEnd")
     fun getMemosByDate(dayStart: Long, dayEnd: Long): Flow<List<MemoEntity>>
+
+    @Query("SELECT DISTINCT m.* FROM memos m INNER JOIN reminders r ON m.id = r.memoId WHERE r.reminderTime BETWEEN :start AND :end ORDER BY r.reminderTime ASC")
+    fun getMemosByReminderDate(start: Long, end: Long): Flow<List<MemoEntity>>
 
     @Query("""
         SELECT * FROM memos 
