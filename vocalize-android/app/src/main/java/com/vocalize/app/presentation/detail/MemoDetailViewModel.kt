@@ -178,7 +178,7 @@ class MemoDetailViewModel @Inject constructor(
             )
             memoRepository.insertReminder(reminder)
             refreshMemoReminderFields()
-            alarmScheduler.scheduleReminder(reminder, _uiState.value.memo?.title ?: "Voice Memo")
+            _uiState.value.memo?.let { alarmScheduler.scheduleReminder(it) }
             _uiState.update { it.copy(showReminderSheet = false, editingReminderId = null) }
         }
     }
@@ -261,7 +261,7 @@ class MemoDetailViewModel @Inject constructor(
             } else {
                 categoryId
             }
-            memoRepository.updateCategory(memoId, validCategoryId, System.currentTimeMillis())
+            memoRepository.updateMemoCategory(memoId, validCategoryId, System.currentTimeMillis())
             _uiState.update { it.copy(showCategorySheet = false) }
         }
     }

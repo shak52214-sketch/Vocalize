@@ -14,6 +14,7 @@ import com.vocalize.app.data.local.entity.TagEntity
 import com.vocalize.app.data.local.entity.MemoTagCrossRef
 import com.vocalize.app.data.local.entity.RepeatType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -94,6 +95,7 @@ class MemoRepository @Inject constructor(
     suspend fun getCategoryById(id: String): CategoryEntity? = categoryDao.getCategoryById(id)
     suspend fun insertCategory(category: CategoryEntity) = categoryDao.insertCategory(category)
     suspend fun updateCategory(category: CategoryEntity) = categoryDao.updateCategory(category)
+    suspend fun updateMemoCategory(id: String, categoryId: String?, now: Long) = memoDao.updateCategory(id, categoryId, now)
     suspend fun deleteCategory(category: CategoryEntity) = categoryDao.deleteCategory(category)
 
     // ─── Playlists ───────────────────────────────────────────

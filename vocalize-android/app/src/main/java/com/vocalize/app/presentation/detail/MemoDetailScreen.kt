@@ -242,7 +242,7 @@ fun MemoDetailScreen(
                 Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                     Text("Tags", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(8.dp))
-                    FlowRow(mainAxisSpacing = 8.dp, crossAxisSpacing = 8.dp) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         uiState.memoTags.forEach { tag ->
                             AssistChip(
                                 onClick = {},
