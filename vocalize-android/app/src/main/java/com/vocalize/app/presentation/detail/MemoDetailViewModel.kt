@@ -10,7 +10,7 @@ import com.vocalize.app.data.local.entity.PlaylistMemoCrossRef
 import com.vocalize.app.data.local.entity.RepeatType
 import com.vocalize.app.data.repository.MemoRepository
 import com.vocalize.app.util.AudioPlayerManager
-import com.vocalize.app.util.PlaybackState
+import com.vocalize.app.util.AudioPlaybackState
 import com.vocalize.app.util.ReminderAlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -25,7 +25,7 @@ data class DetailUiState(
     val memo: MemoEntity? = null,
     val categories: List<CategoryEntity> = emptyList(),
     val playlists: List<PlaylistEntity> = emptyList(),
-    val playbackState: PlaybackState = PlaybackState(),
+    val playbackState: AudioPlaybackState = AudioPlaybackState(),
     val isLoading: Boolean = true,
     val isEditingTitle: Boolean = false,
     val editedTitle: String = "",

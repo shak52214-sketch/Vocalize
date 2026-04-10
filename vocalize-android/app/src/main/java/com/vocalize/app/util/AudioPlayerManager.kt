@@ -14,7 +14,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-data class PlaybackState(
+data class AudioPlaybackState(
     val isPlaying: Boolean = false,
     val currentPosition: Int = 0,
     val duration: Int = 0,
@@ -34,8 +34,8 @@ class AudioPlayerManager @Inject constructor(
     var onPositionSave: ((String, Long) -> Unit)? = null
     var onTrackCompleted: (() -> Unit)? = null
 
-    private val _playbackState = MutableStateFlow(PlaybackState())
-    val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
+    private val _playbackState = MutableStateFlow(AudioPlaybackState())
+    val playbackState: StateFlow<AudioPlaybackState> = _playbackState.asStateFlow()
 
     companion object {
         private const val CROSSFADE_DURATION_MS = 1500L
@@ -80,7 +80,7 @@ class AudioPlayerManager @Inject constructor(
                 updateMediaSessionState(false)
                 onTrackCompleted?.invoke()
             }
-            _playbackState.value = PlaybackState(
+            _playbackState.value = AudioPlaybackState(
                 isPlaying = true,
                 currentPosition = startPositionMs.toInt(),
                 duration = this.duration,
@@ -126,7 +126,7 @@ class AudioPlayerManager @Inject constructor(
         }
 
         val newDuration = crossfadePlayer?.duration ?: 0
-        _playbackState.value = PlaybackState(
+        _playbackState.value = AudioPlaybackState(
             isPlaying = true,
             currentPosition = 0,
             duration = newDuration,
