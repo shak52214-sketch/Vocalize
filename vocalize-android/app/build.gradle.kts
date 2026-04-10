@@ -89,6 +89,7 @@ dependencies {
 
     // Media Session
     implementation(libs.androidx.media)
+    implementation("androidx.media:media:1.7.0")
 
     // DataStore Preferences
     implementation(libs.datastore.preferences)
