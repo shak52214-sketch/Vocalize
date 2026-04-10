@@ -12,6 +12,7 @@ import android.os.Looper
 import android.os.Process
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.vocalize.app.CrashNotificationReceiver
 import com.vocalize.app.CrashReportActivity
 import com.vocalize.app.VocalizeApplication
 import com.vocalize.app.R
