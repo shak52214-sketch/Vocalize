@@ -14,6 +14,7 @@ import com.vocalize.app.util.AudioFileManager
 import com.vocalize.app.util.BackupManager
 import com.vocalize.app.util.Constants
 import com.vocalize.app.util.DailyDigestWorker
+import com.vocalize.app.util.ReminderAlarmScheduler
 import com.vocalize.app.util.VoskTranscriber
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
