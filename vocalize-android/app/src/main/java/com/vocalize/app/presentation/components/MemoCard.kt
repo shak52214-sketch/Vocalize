@@ -23,6 +23,7 @@ import androidx.core.content.FileProvider
 import com.vocalize.app.data.local.entity.CategoryEntity
 import com.vocalize.app.data.local.entity.MemoEntity
 import com.vocalize.app.presentation.theme.*
+import com.vocalize.app.util.Utils
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -187,6 +188,20 @@ fun MemoCard(
                                 text = formatDateTime(memo.reminderTime),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = VocalizeOrange
+                            )
+                        }
+                        Spacer(Modifier.height(2.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Timer, null, modifier = Modifier.size(11.dp), tint = VocalizeOrange)
+                            Spacer(Modifier.width(3.dp))
+                            Text(
+                                text = if (memo.reminderTime > System.currentTimeMillis()) {
+                                    "Due in ${Utils.formatTimeUntil(memo.reminderTime)}"
+                                } else {
+                                    "Due now"
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }

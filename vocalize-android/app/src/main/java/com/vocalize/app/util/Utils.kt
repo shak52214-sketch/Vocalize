@@ -64,6 +64,27 @@ object Utils {
     fun formatReminderTime(timestampMs: Long): String =
         SimpleDateFormat("EEE, MMM d 'at' h:mm a", Locale.getDefault()).format(Date(timestampMs))
 
+    fun formatTimeUntil(timestampMs: Long): String {
+        val now = System.currentTimeMillis()
+        val diffMs = timestampMs - now
+        if (diffMs <= 0) return "Due now"
+
+        val days = TimeUnit.MILLISECONDS.toDays(diffMs)
+        val hours = TimeUnit.MILLISECONDS.toHours(diffMs) % 24
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(diffMs) % 60
+
+        return when {
+            days > 0 -> {
+                if (hours > 0) "${days}d ${hours}h" else "${days}d"
+            }
+            hours > 0 -> {
+                if (minutes > 0) "${hours}h ${minutes}m" else "${hours}h"
+            }
+            minutes > 0 -> "${minutes}m"
+            else -> "Less than a minute"
+        }
+    }
+
     fun formatFileSize(bytes: Long): String {
         return when {
             bytes < 1024 -> "$bytes B"

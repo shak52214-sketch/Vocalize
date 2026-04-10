@@ -190,25 +190,31 @@ class MemoDetailViewModel @Inject constructor(
             )
             memoRepository.insertReminder(reminder)
             refreshMemoReminderFields()
-            _uiState.value.memo?.let { alarmScheduler.scheduleReminder(it) }
+            memoRepository.getMemoById(memoId)?.let { alarmScheduler.scheduleReminder(it) }
             _uiState.update { it.copy(showReminderSheet = false, editingReminderId = null) }
         }
     }
 
     fun deleteReminder(reminderId: String) {
         viewModelScope.launch {
+            alarmScheduler.cancelReminder(memoId)
             memoRepository.deleteReminderById(reminderId)
-            alarmScheduler.cancelReminder(reminderId)
             refreshMemoReminderFields()
+            memoRepository.getMemoById(memoId)?.let {
+                if (it.hasReminder && it.reminderTime != null) {
+                    alarmScheduler.scheduleReminder(it)
+                } else {
+                    alarmScheduler.cancelReminder(memoId)
+                }
+            }
         }
     }
 
     fun clearAllReminders() {
         viewModelScope.launch {
-            val reminders = memoRepository.getRemindersForMemo(memoId).first()
-            reminders.forEach { alarmScheduler.cancelReminder(it.id) }
             memoRepository.deleteRemindersByMemo(memoId)
             memoRepository.updateReminder(memoId, false, null, RepeatType.NONE, "")
+            alarmScheduler.cancelReminder(memoId)
             _uiState.update { it.copy(showReminderSheet = false, editingReminderId = null) }
         }
     }

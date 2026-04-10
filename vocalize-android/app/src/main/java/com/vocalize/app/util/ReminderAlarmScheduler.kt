@@ -47,7 +47,10 @@ class ReminderAlarmScheduler @Inject constructor(
     }
 
     fun cancelReminder(memoId: String) {
-        val intent = Intent(context, ReminderBroadcastReceiver::class.java)
+        val intent = Intent(context, ReminderBroadcastReceiver::class.java).apply {
+            action = Constants.ACTION_PLAY
+            putExtra(Constants.EXTRA_MEMO_ID, memoId)
+        }
         val pending = PendingIntent.getBroadcast(
             context,
             memoId.hashCode(),
