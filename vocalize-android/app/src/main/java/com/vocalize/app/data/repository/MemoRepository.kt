@@ -96,6 +96,8 @@ class MemoRepository @Inject constructor(
     suspend fun insertCategory(category: CategoryEntity) = categoryDao.insertCategory(category)
     suspend fun updateCategory(category: CategoryEntity) = categoryDao.updateCategory(category)
     suspend fun updateMemoCategory(id: String, categoryId: String?, now: Long) = memoDao.updateCategory(id, categoryId, now)
+    suspend fun replaceMemoCategories(memoId: String, categoryIds: List<String>) = memoDao.replaceMemoCategories(memoId, categoryIds)
+    fun getCategoriesForMemo(memoId: String) = memoDao.getCategoriesForMemo(memoId)
     suspend fun deleteCategory(category: CategoryEntity) = categoryDao.deleteCategory(category)
 
     // ─── Playlists ───────────────────────────────────────────

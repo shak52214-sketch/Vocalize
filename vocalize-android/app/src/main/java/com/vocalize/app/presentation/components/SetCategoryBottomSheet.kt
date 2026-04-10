@@ -23,11 +23,12 @@ import com.vocalize.app.presentation.theme.*
 @Composable
 fun SetCategoryBottomSheet(
     categories: List<CategoryEntity>,
-    currentCategoryId: String?,
+    currentCategoryIds: Set<String>,
     onDismiss: () -> Unit,
-    onSelect: (String?) -> Unit
+    onSelect: (Set<String>) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var selectedCategoryIds by remember { mutableStateOf(currentCategoryIds.toMutableSet()) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -65,8 +66,7 @@ fun SetCategoryBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        onSelect(null)
-                        onDismiss()
+                        selectedCategoryIds = mutableSetOf()
                     }
                     .padding(vertical = 12.dp, horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -81,10 +81,10 @@ fun SetCategoryBottomSheet(
                 Text(
                     text = "No Category",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (currentCategoryId == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    color = if (selectedCategoryIds.isEmpty()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(Modifier.weight(1f))
-                if (currentCategoryId == null) {
+                if (selectedCategoryIds.isEmpty()) {
                     Icon(
                         Icons.Default.Check,
                         contentDescription = null,
@@ -122,14 +122,27 @@ fun SetCategoryBottomSheet(
                     itemsIndexed(categories, key = { _, c -> c.id }) { _, category ->
                         CategoryItemRow(
                             category = category,
-                            isSelected = category.id == currentCategoryId,
+                            isSelected = category.id in selectedCategoryIds,
                             onClick = {
-                                onSelect(category.id)
-                                onDismiss()
+                                selectedCategoryIds = selectedCategoryIds.toMutableSet().also {
+                                    if (category.id in it) it.remove(category.id) else it.add(category.id)
+                                }
                             }
                         )
                     }
                 }
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    onSelect(selectedCategoryIds)
+                    onDismiss()
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Save")
             }
         }
     }

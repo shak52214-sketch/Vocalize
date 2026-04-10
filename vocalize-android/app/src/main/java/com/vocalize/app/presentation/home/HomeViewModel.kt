@@ -54,26 +54,25 @@ class HomeViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
+            val filter = _uiState.value.selectedCategoryFilter
+            val allMemosFlow = if (filter != null) memoRepository.getMemosByCategory(filter) else memoRepository.getAllMemos()
+
             combine(
-                memoRepository.getRecentMemos(),
-                memoRepository.getAllMemos(),
-                memoRepository.getPinnedMemos(),
+                allMemosFlow,
                 memoRepository.getAllPlaylists(),
                 memoRepository.getAllCategories()
-            ) { recent, all, pinned, playlists, categories ->
-                val filter = _uiState.value.selectedCategoryFilter
-                val filteredRecent = if (filter != null) recent.filter { it.categoryId == filter } else recent
-                val filteredAll = if (filter != null) all.filter { it.categoryId == filter } else all
-                val filteredPinned = if (filter != null) pinned.filter { it.categoryId == filter } else pinned
+            ) { all, playlists, categories ->
+                val pinned = all.filter { it.isPinned }
+                val recent = all.sortedByDescending { it.dateCreated }.take(10)
                 _uiState.value.copy(
-                    recentMemos = filteredRecent,
-                    allMemos = filteredAll,
-                    pinnedMemos = filteredPinned,
+                    recentMemos = recent,
+                    allMemos = all,
+                    pinnedMemos = pinned,
                     playlists = playlists,
                     categories = categories,
                     isLoading = false,
-                    totalMemos = filteredAll.size,
-                    totalDurationMs = filteredAll.sumOf { it.duration }
+                    totalMemos = all.size,
+                    totalDurationMs = all.sumOf { it.duration }
                 )
             }.collect { _uiState.value = it }
         }

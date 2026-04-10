@@ -426,9 +426,9 @@ fun MemoDetailScreen(
     if (uiState.showCategorySheet) {
         SetCategoryBottomSheet(
             categories = uiState.categories,
-            currentCategoryId = memo?.categoryId,
+            currentCategoryIds = uiState.memoCategories.map { it.id }.toSet(),
             onDismiss = viewModel::hideCategorySheet,
-            onSelect = viewModel::updateCategory
+            onSelect = viewModel::updateCategories
         )
     }
 

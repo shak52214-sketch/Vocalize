@@ -1,6 +1,8 @@
 package com.vocalize.app.data.local.dao
 
 import androidx.room.*
+import com.vocalize.app.data.local.entity.CategoryEntity
+import com.vocalize.app.data.local.entity.MemoCategoryCrossRef
 import com.vocalize.app.data.local.entity.MemoEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -22,8 +24,26 @@ interface MemoDao {
     @Query("SELECT * FROM memos WHERE id = :id")
     fun getMemoByIdFlow(id: String): Flow<MemoEntity?>
 
-    @Query("SELECT * FROM memos WHERE categoryId = :categoryId ORDER BY dateCreated DESC")
+    @Query("SELECT m.* FROM memos m INNER JOIN memo_category_cross_ref mc ON m.id = mc.memoId WHERE mc.categoryId = :categoryId ORDER BY m.dateCreated DESC")
     fun getMemosByCategory(categoryId: String): Flow<List<MemoEntity>>
+
+    @Query("SELECT c.* FROM categories c INNER JOIN memo_category_cross_ref mc ON c.id = mc.categoryId WHERE mc.memoId = :memoId ORDER BY c.name ASC")
+    fun getCategoriesForMemo(memoId: String): Flow<List<CategoryEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMemoCategoryCrossRef(crossRef: MemoCategoryCrossRef)
+
+    @Query("DELETE FROM memo_category_cross_ref WHERE memoId = :memoId")
+    suspend fun deleteCategoriesForMemo(memoId: String)
+
+    @Query("DELETE FROM memo_category_cross_ref WHERE memoId = :memoId AND categoryId = :categoryId")
+    suspend fun deleteMemoCategory(memoId: String, categoryId: String)
+
+    @Transaction
+    suspend fun replaceMemoCategories(memoId: String, categoryIds: List<String>) {
+        deleteCategoriesForMemo(memoId)
+        categoryIds.forEach { insertMemoCategoryCrossRef(MemoCategoryCrossRef(memoId, it)) }
+    }
 
     @Query("SELECT * FROM memos WHERE hasReminder = 1 AND reminderTime >= :now ORDER BY reminderTime ASC")
     fun getUpcomingReminders(now: Long): Flow<List<MemoEntity>>
@@ -41,12 +61,13 @@ interface MemoDao {
     fun searchMemos(query: String): Flow<List<MemoEntity>>
 
     @Query("""
-        SELECT * FROM memos 
-        WHERE (:categoryId IS NULL OR categoryId = :categoryId)
-        AND (:hasReminder IS NULL OR hasReminder = :hasReminder)
-        AND (:dateFrom IS NULL OR dateCreated >= :dateFrom)
-        AND (:dateTo IS NULL OR dateCreated <= :dateTo)
-        ORDER BY dateCreated DESC
+        SELECT DISTINCT m.* FROM memos m
+        LEFT JOIN memo_category_cross_ref mc ON m.id = mc.memoId
+        WHERE (:categoryId IS NULL OR mc.categoryId = :categoryId)
+        AND (:hasReminder IS NULL OR m.hasReminder = :hasReminder)
+        AND (:dateFrom IS NULL OR m.dateCreated >= :dateFrom)
+        AND (:dateTo IS NULL OR m.dateCreated <= :dateTo)
+        ORDER BY m.dateCreated DESC
     """)
     fun getFilteredMemos(
         categoryId: String?,

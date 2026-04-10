@@ -18,6 +18,7 @@ import com.vocalize.app.data.local.entity.PlaylistMemoCrossRef
 import com.vocalize.app.data.local.entity.RepeatType
 import com.vocalize.app.data.local.entity.TagEntity
 import com.vocalize.app.data.local.entity.MemoTagCrossRef
+import com.vocalize.app.data.local.entity.MemoCategoryCrossRef
 import com.vocalize.app.data.local.entity.ReminderEntity
 
 class Converters {
@@ -36,9 +37,10 @@ class Converters {
         PlaylistMemoCrossRef::class,
         TagEntity::class,
         MemoTagCrossRef::class,
+        MemoCategoryCrossRef::class,
         ReminderEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

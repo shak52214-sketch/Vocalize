@@ -26,6 +26,7 @@ import javax.inject.Inject
 data class DetailUiState(
     val memo: MemoEntity? = null,
     val categories: List<CategoryEntity> = emptyList(),
+    val memoCategories: List<CategoryEntity> = emptyList(),
     val playlists: List<PlaylistEntity> = emptyList(),
     val tags: List<TagEntity> = emptyList(),
     val memoTags: List<TagEntity> = emptyList(),
@@ -71,6 +72,7 @@ class MemoDetailViewModel @Inject constructor(
                 memoRepository.getAllCategories(),
                 memoRepository.getAllPlaylists(),
                 memoRepository.getAllTags(),
+                memoRepository.getCategoriesForMemo(memoId),
                 memoRepository.getTagsForMemo(memoId),
                 memoRepository.getRemindersForMemo(memoId)
             ) { values ->
@@ -79,12 +81,14 @@ class MemoDetailViewModel @Inject constructor(
                 val categories = values[1] as List<CategoryEntity>
                 val playlists = values[2] as List<PlaylistEntity>
                 val tags = values[3] as List<TagEntity>
-                val memoTags = values[4] as List<TagEntity>
-                val reminders = values[5] as List<ReminderEntity>
-                
+                val memoCategories = values[4] as List<CategoryEntity>
+                val memoTags = values[5] as List<TagEntity>
+                val reminders = values[6] as List<ReminderEntity>
+
                 DetailUiState(
                     memo = memo,
                     categories = categories,
+                    memoCategories = memoCategories,
                     playlists = playlists,
                     tags = tags,
                     memoTags = memoTags,
@@ -262,14 +266,12 @@ class MemoDetailViewModel @Inject constructor(
         }
     }
 
-    fun updateCategory(categoryId: String?) {
+    fun updateCategories(categoryIds: Set<String>) {
         viewModelScope.launch {
-            val validCategoryId = if (categoryId != null && _uiState.value.categories.none { it.id == categoryId }) {
-                null
-            } else {
-                categoryId
-            }
-            memoRepository.updateMemoCategory(memoId, validCategoryId, System.currentTimeMillis())
+            val validCategoryIds = categoryIds.filter { id -> _uiState.value.categories.any { it.id == id } }
+            memoRepository.replaceMemoCategories(memoId, validCategoryIds)
+            val primaryCategoryId = validCategoryIds.firstOrNull()
+            memoRepository.updateMemoCategory(memoId, primaryCategoryId, System.currentTimeMillis())
             _uiState.update { it.copy(showCategorySheet = false) }
         }
     }
