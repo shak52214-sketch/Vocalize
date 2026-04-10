@@ -3,6 +3,8 @@ package com.vocalize.app.util
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.os.Process
 import android.util.Log
 import com.vocalize.app.CrashReportActivity
@@ -25,11 +27,18 @@ object CrashReporter {
             } catch (error: Throwable) {
                 Log.e(TAG, "Crash reporter failed", error)
             } finally {
-                defaultHandler?.uncaughtException(thread, throwable)
-                    ?: run {
+                if (thread == Looper.getMainLooper().thread) {
+                    Handler(Looper.getMainLooper()).postDelayed({
                         Process.killProcess(Process.myPid())
                         System.exit(2)
-                    }
+                    }, 1500)
+                } else {
+                    defaultHandler?.uncaughtException(thread, throwable)
+                        ?: run {
+                            Process.killProcess(Process.myPid())
+                            System.exit(2)
+                        }
+                }
             }
         }
     }
