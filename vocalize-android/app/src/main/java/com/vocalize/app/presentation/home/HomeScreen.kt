@@ -482,7 +482,7 @@ private fun MemoList(
                     onPin = onPin,
                     onLongPress = onLongPress,
                     onSelectionToggle = onSelectionToggle,
-                    categories = categories
+                    memoCategories = uiState.memoCategories
                 )
             }
 
@@ -508,7 +508,7 @@ private fun MemoList(
                 onPin = onPin,
                 onLongPress = onLongPress,
                 onSelectionToggle = onSelectionToggle,
-                categories = categories
+                memoCategories = uiState.memoCategories
             )
         }
 
@@ -544,7 +544,7 @@ private fun AnimatedMemoCard(
     onPin: (MemoEntity) -> Unit,
     onLongPress: (String) -> Unit,
     onSelectionToggle: (String) -> Unit,
-    categories: List<CategoryEntity>
+    memoCategories: Map<String, List<CategoryEntity>>
 ) {
     val animDelay = (index * 60).coerceAtMost(600)
     var visible by remember { mutableStateOf(false) }
@@ -561,6 +561,7 @@ private fun AnimatedMemoCard(
     ) {
         MemoCard(
             memo = memo,
+            categories = memoCategories[memo.id] ?: emptyList(),
             category = categories.find { it.id == memo.categoryId },
             onClick = { onMemoClick(memo.id) },
             onDelete = { onDeleteMemo(memo) },

@@ -33,7 +33,8 @@ data class HomeUiState(
     val totalDurationMs: Long = 0L,
     val selectedMemoIds: Set<String> = emptySet(),
     val isBatchMode: Boolean = false,
-    val snackbarMessage: String? = null
+    val snackbarMessage: String? = null,
+    val memoCategories: Map<String, List<CategoryEntity>> = emptyMap()
 )
 
 @HiltViewModel
@@ -62,19 +63,27 @@ class HomeViewModel @Inject constructor(
                 memoRepository.getAllPlaylists(),
                 memoRepository.getAllCategories()
             ) { all, playlists, categories ->
+                Triple(all, playlists, categories)
+            }.collect { (all, playlists, categories) ->
                 val pinned = all.filter { it.isPinned }
                 val recent = all.sortedByDescending { it.dateCreated }.take(10)
-                _uiState.value.copy(
+
+                val memoCategories = all.associate { memo ->
+                    memo.id to memoRepository.getCategoriesForMemo(memo.id).first()
+                }
+
+                _uiState.value = _uiState.value.copy(
                     recentMemos = recent,
                     allMemos = all,
                     pinnedMemos = pinned,
                     playlists = playlists,
                     categories = categories,
+                    memoCategories = memoCategories,
                     isLoading = false,
                     totalMemos = all.size,
                     totalDurationMs = all.sumOf { it.duration }
                 )
-            }.collect { _uiState.value = it }
+            }
         }
     }
 

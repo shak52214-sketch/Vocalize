@@ -4,7 +4,9 @@ import android.content.Intent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -29,7 +31,8 @@ import java.util.*
 @Composable
 fun MemoCard(
     memo: MemoEntity,
-    category: CategoryEntity?,
+    category: CategoryEntity? = null,
+    categories: List<CategoryEntity> = emptyList(),
     onClick: () -> Unit,
     onDelete: () -> Unit,
     onAddToPlaylist: () -> Unit,
@@ -50,9 +53,10 @@ fun MemoCard(
         }
     )
 
-    val categoryColor = remember(category) {
+    val categoryColor = remember(categories, category) {
         try {
-            category?.colorHex?.let { Color(android.graphics.Color.parseColor(it)) }
+            categories.firstOrNull()?.colorHex?.let { Color(android.graphics.Color.parseColor(it)) }
+                ?: category?.colorHex?.let { Color(android.graphics.Color.parseColor(it)) }
         } catch (e: Exception) { null }
     }
 
@@ -198,7 +202,46 @@ fun MemoCard(
                         )
                     }
 
-                    if (category != null) {
+                    if (categories.isNotEmpty()) {
+                        Spacer(Modifier.height(6.dp))
+                        Row(
+                            modifier = Modifier
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            categories.take(3).forEach { cat ->
+                                val chipColor = remember(cat) {
+                                    try {
+                                        Color(android.graphics.Color.parseColor(cat.colorHex))
+                                    } catch (e: Exception) { VocalizeRed }
+                                }
+                                Surface(
+                                    color = chipColor.copy(alpha = 0.12f),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        text = cat.name,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = chipColor,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                            if (categories.size > 3) {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        text = "+${categories.size - 3}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+                    } else if (category != null) {
                         Spacer(Modifier.height(6.dp))
                         Surface(
                             color = (categoryColor ?: VocalizeRed).copy(alpha = 0.12f),
