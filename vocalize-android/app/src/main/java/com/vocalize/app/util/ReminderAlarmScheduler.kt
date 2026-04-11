@@ -74,7 +74,7 @@ class ReminderAlarmScheduler @Inject constructor(
         alarmManager.cancel(pending)
     }
 
-    fun scheduleNextRepeat(memo: MemoEntity) {
+    suspend fun scheduleNextRepeat(memo: MemoEntity) {
         val reminderTime = memo.reminderTime ?: return
         val now = System.currentTimeMillis()
 
