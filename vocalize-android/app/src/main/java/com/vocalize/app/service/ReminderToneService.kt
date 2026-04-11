@@ -76,7 +76,11 @@ class ReminderToneService : Service() {
                 setVolume(volume, volume)
                 isLooping = false
                 setOnCompletionListener {
+                    // Keep the reminder notification alive until user dismisses or snoozes.
+                }
+                setOnErrorListener { _, _, _ ->
                     stopSelf()
+                    true
                 }
                 prepare()
                 start()

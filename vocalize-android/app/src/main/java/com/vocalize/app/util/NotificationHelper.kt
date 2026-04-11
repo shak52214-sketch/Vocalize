@@ -107,17 +107,34 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val stopIntent = Intent(context, ReminderToneService::class.java).apply {
+            action = ReminderToneService.ACTION_STOP_REMINDER
+        }
+        val stopPending = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            PendingIntent.getForegroundService(
+                context, notifId + 7, stopIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            PendingIntent.getService(
+                context, notifId + 7, stopIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
         val builder = NotificationCompat.Builder(context, VocalizeApplication.CHANNEL_REMINDERS)
             .setSmallIcon(R.drawable.ic_mic)
             .setContentTitle("Time to listen: $memoTitle")
             .setContentText("Tap Play to listen without opening the app")
-            .setAutoCancel(true)
+            .setAutoCancel(false)
+            .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentIntent(openPending)
             .addAction(R.drawable.ic_play, "Play", playPending)
             .addAction(R.drawable.ic_mic, "Note", notePending)
             .addAction(R.drawable.ic_alarm, "Snooze", snoozePending)
             .addAction(R.drawable.ic_delete, "Dismiss", dismissPending)
+            .addAction(R.drawable.ic_delete, "Stop", stopPending)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
