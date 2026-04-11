@@ -25,6 +25,7 @@ class PlaybackService : Service() {
     private val binder = LocalBinder()
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     private var positionUpdateJob: Job? = null
+    private var notificationId: Int = NOTIFICATION_ID
 
     inner class LocalBinder : Binder() {
         fun getService(): PlaybackService = this@PlaybackService
@@ -69,9 +70,12 @@ class PlaybackService : Service() {
 
     private fun handlePlayAudio(intent: Intent?) {
         val memoId = intent?.getStringExtra(Constants.EXTRA_MEMO_ID) ?: return
+        val newNotificationId = intent.getIntExtra(Constants.EXTRA_NOTIFICATION_ID, NOTIFICATION_ID)
         scope.launch {
             val memo = withContext(Dispatchers.IO) { memoRepository.getMemoById(memoId) }
             memo?.let {
+                notificationId = newNotificationId
+                startForeground(notificationId, buildNotification(false, it.title))
                 playMemo(it.filePath, it.id, it.title, it.lastPlaybackPositionMs)
             }
         }
@@ -125,7 +129,7 @@ class PlaybackService : Service() {
     private fun updateNotification(title: String, isPlaying: Boolean) {
         val notification = buildNotification(isPlaying, title)
         val manager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
-        manager.notify(NOTIFICATION_ID, notification)
+        manager.notify(notificationId, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

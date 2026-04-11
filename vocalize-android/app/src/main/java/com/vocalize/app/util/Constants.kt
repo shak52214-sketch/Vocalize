@@ -20,6 +20,7 @@ object Constants {
     const val EXTRA_MEMO_TITLE = "memo_title"
     const val EXTRA_ACTION_PLAY = "action_play"
     const val EXTRA_FULL_SCREEN_REMINDER = "full_screen_reminder"
+    const val EXTRA_NOTIFICATION_ID = "notification_id"
     const val SNOOZE_DURATION_MS = 10 * 60 * 1000L // 10 minutes default
 
     // WorkManager tags

@@ -56,17 +56,18 @@ class ReminderBroadcastReceiver : BroadcastReceiver() {
                 notificationHelper.showReminderNotification(memoId, memoTitle)
             }
             Constants.ACTION_REMINDER_PLAY -> {
-                context.stopService(Intent(context, ReminderToneService::class.java))
                 val playbackIntent = Intent(context, PlaybackService::class.java).apply {
                     action = Constants.ACTION_PLAY_AUDIO
                     putExtra(Constants.EXTRA_MEMO_ID, memoId)
                     putExtra(Constants.EXTRA_MEMO_TITLE, memoTitle)
+                    putExtra(Constants.EXTRA_NOTIFICATION_ID, memoId.hashCode())
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     context.startForegroundService(playbackIntent)
                 } else {
                     context.startService(playbackIntent)
                 }
+                context.stopService(Intent(context, ReminderToneService::class.java))
             }
             Constants.ACTION_SNOOZE -> {
                 CoroutineScope(Dispatchers.IO).launch {
