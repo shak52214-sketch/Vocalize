@@ -26,6 +26,7 @@ class ReminderBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val memoId = intent.getStringExtra(Constants.EXTRA_MEMO_ID) ?: return
         val memoTitle = intent.getStringExtra(Constants.EXTRA_MEMO_TITLE) ?: "Voice Memo"
+        val pendingResult = goAsync()
 
         when (intent.action) {
             Constants.ACTION_PLAY -> {
@@ -41,14 +42,18 @@ class ReminderBroadcastReceiver : BroadcastReceiver() {
                 }
                 // Schedule next repeat if applicable
                 CoroutineScope(Dispatchers.IO).launch {
-                    val memo = memoRepository.getMemoById(memoId) ?: return@launch
-                    if (memo.repeatType != com.vocalize.app.data.local.entity.RepeatType.NONE) {
-                        alarmScheduler.scheduleNextRepeat(memo)
+                    try {
+                        val memo = memoRepository.getMemoById(memoId) ?: return@launch
+                        if (memo.repeatType != com.vocalize.app.data.local.entity.RepeatType.NONE) {
+                            alarmScheduler.scheduleNextRepeat(memo)
+                        }
+                    } finally {
+                        pendingResult.finish()
                     }
                 }
+                return
             }
             Constants.ACTION_SHOW_NOTE -> {
-                // Support legacy note action if used elsewhere.
                 notificationHelper.showReminderNoteNotification(memoId, memoTitle)
                 context.stopService(Intent(context, ReminderToneService::class.java))
             }
@@ -71,18 +76,25 @@ class ReminderBroadcastReceiver : BroadcastReceiver() {
             }
             Constants.ACTION_SNOOZE -> {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val memo = memoRepository.getMemoById(memoId) ?: return@launch
-                    val snoozeMinutes = context.dataStore.data.first()[stringPreferencesKey(Constants.PREFS_DEFAULT_SNOOZE)]?.toIntOrNull() ?: 10
-                    val snoozeTime = System.currentTimeMillis() + snoozeMinutes * 60 * 1000L
-                    alarmScheduler.scheduleReminder(memo.copy(reminderTime = snoozeTime))
+                    try {
+                        val memo = memoRepository.getMemoById(memoId) ?: return@launch
+                        val snoozeMinutes = context.dataStore.data.first()[stringPreferencesKey(Constants.PREFS_DEFAULT_SNOOZE)]?.toIntOrNull() ?: 10
+                        val snoozeTime = System.currentTimeMillis() + snoozeMinutes * 60 * 1000L
+                        alarmScheduler.scheduleReminder(memo.copy(reminderTime = snoozeTime))
+                    } finally {
+                        pendingResult.finish()
+                    }
                 }
                 notificationHelper.cancelNotification(memoId)
                 context.stopService(Intent(context, ReminderToneService::class.java))
+                return
             }
             Constants.ACTION_DISMISS -> {
                 notificationHelper.cancelNotification(memoId)
                 context.stopService(Intent(context, ReminderToneService::class.java))
             }
         }
+
+        pendingResult.finish()
     }
 }
