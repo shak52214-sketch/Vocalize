@@ -17,6 +17,7 @@ import com.vocalize.app.R
 import com.vocalize.app.VocalizeApplication
 import com.vocalize.app.data.repository.MemoRepository
 import com.vocalize.app.service.PlaybackService
+import com.vocalize.app.service.ReminderToneService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
